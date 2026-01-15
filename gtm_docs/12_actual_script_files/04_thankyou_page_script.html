@@ -1,0 +1,52 @@
+<!--
+================================================================================
+FILE: 04_thankyou_page_script.html
+PLACEMENT: Before closing </body> tag
+PAGES: THANK YOU / SUCCESS PAGE ONLY
+================================================================================
+-->
+
+<script type="text/javascript">
+var script = document.createElement('script');
+script.src = "https://www.pvm75hjsg.com/scripts/sdk/everflow.js";
+script.defer = true;
+script.onload = function() {
+    var siteUrl = "www.pvm75hjsg.com";
+    var advertiserId = 1;
+    var elems = document.body.getElementsByTagName("a");
+    
+    EF.click({
+        offer_id: EF.urlParameter('oid'),
+        affiliate_id: EF.urlParameter('affid'),
+        sub1: EF.urlParameter('sub1'),
+        sub2: EF.urlParameter('sub2'),
+        sub3: EF.urlParameter('sub3'),
+        sub4: EF.urlParameter('sub4'),
+        sub5: EF.urlParameter('sub5'),
+        uid: EF.urlParameter('uid'),
+        source_id: EF.urlParameter('source_id'),
+        transaction_id: EF.urlParameter('_ef_transaction_id'),
+    }).then(function(transactionId) {
+        console.log('Everflow Transaction ID:', transactionId);
+        
+        if (transactionId) {
+            for (var i = 0; i < elems.length; i++) {
+                if (elems[i].href.includes(siteUrl)) {
+                    var url = new URL(elems[i].href);
+                    url.searchParams.set("sub1", transactionId);
+                    elems[i].href = url.href;
+                }
+            }
+        } else {
+            for (var i = 0; i < elems.length; i++) {
+                if (elems[i].href.includes(siteUrl)) {
+                    var url = new URL(elems[i].href);
+                    url.searchParams.set("sub1", EF.getAdvertiserTransactionId(advertiserId));
+                    elems[i].href = url.href;
+                }
+            }
+        }
+    });
+}
+document.body.append(script);
+</script>

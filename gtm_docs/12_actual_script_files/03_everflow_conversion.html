@@ -1,0 +1,144 @@
+<!--
+================================================================================
+FILE: 03_everflow_conversion.html
+PLACEMENT: Before closing </body> tag, AFTER 02_body_scripts.html
+PAGES: ALL PAGES
+================================================================================
+-->
+
+<script>
+(function() {
+  var originalFetch = window.fetch;
+  
+  window.fetch = function() {
+    var args = arguments;
+    return originalFetch.apply(this, args).then(function(response) {
+      var url = args[0];
+      var options = args[1];
+      
+      if (url && typeof url === 'string' && url.indexOf('nextinsure.com/listingdisplay/listings') > -1) {
+        
+        if (options && options.body) {
+          try {
+            var requestData = JSON.parse(options.body);
+            var businessInfo = requestData.business_info || {};
+            var tracking = requestData.tracking || {};
+            var requestedCoverage = requestData.requested_coverage || {};
+            
+            var firstname = businessInfo.first_name || '';
+            var lastname = businessInfo.last_name || '';
+            var email = businessInfo.email || '';
+            var phone = businessInfo.home_phone || '';
+            var zipcode = businessInfo.zip || '';
+            var city = businessInfo.city || '';
+            var state = businessInfo.state || '';
+            var address = businessInfo.address || '';
+            var businessName = businessInfo.company_name || '';
+            var amount = 150.00;
+            
+            var formattedPhone = phone;
+            if (phone && phone.charAt(0) !== '+') {
+              formattedPhone = phone.replace(/\D/g, '');
+              if (formattedPhone.length === 10) {
+                formattedPhone = '+1' + formattedPhone;
+              }
+            }
+            
+            if (email && phone) {
+              window.dataLayer = window.dataLayer || [];
+              
+              var trackConversion = function() {
+                window.EF.conversion({
+                  aid: 373,
+                  adv1: firstname,
+                  adv2: lastname,
+                  adv3: email,
+                  adv4: phone,
+                  adv5: zipcode,
+                  amount: amount,
+                  parameters: {
+                    "adv6": tracking.tn_ws_client || 'lead_' + Date.now()
+                  }
+                }).then(function(conversionData) {
+                  
+                  var eventId = (conversionData && conversionData.transaction_id) 
+                    ? conversionData.transaction_id 
+                    : 'conv_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+                  
+                  window.dataLayer.push({
+                    'event': 'lead_submission',
+                    'event_id': eventId,
+                    'event_time': Math.floor(Date.now() / 1000),
+                    'value': amount,
+                    'currency': 'USD',
+                    'user_data': {
+                      'email': email.toLowerCase().trim(),
+                      'phone': formattedPhone,
+                      'first_name': firstname.toLowerCase().trim(),
+                      'last_name': lastname.toLowerCase().trim(),
+                      'zip': zipcode.trim(),
+                      'city': city.toLowerCase().trim(),
+                      'state': state.toLowerCase().trim(),
+                      'country': 'US'
+                    },
+                    'business_name': businessName,
+                    'address': address,
+                    'coverage_type': requestedCoverage.coverage_type || ''
+                  });
+                  
+                  if (typeof gtag !== 'undefined') {
+                    gtag('event', 'generate_lead', {
+                      'value': amount,
+                      'currency': 'USD',
+                      'transaction_id': eventId
+                    });
+                  }
+                  
+                  console.log('✅ Lead tracked with event_id:', eventId);
+                  
+                }).catch(function(error) {
+                  console.error('Everflow error:', error);
+                  
+                  var fallbackEventId = 'conv_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+                  
+                  window.dataLayer.push({
+                    'event': 'lead_submission',
+                    'event_id': fallbackEventId,
+                    'event_time': Math.floor(Date.now() / 1000),
+                    'value': amount,
+                    'currency': 'USD',
+                    'user_data': {
+                      'email': email.toLowerCase().trim(),
+                      'phone': formattedPhone,
+                      'first_name': firstname.toLowerCase().trim(),
+                      'last_name': lastname.toLowerCase().trim(),
+                      'zip': zipcode.trim(),
+                      'city': city.toLowerCase().trim(),
+                      'state': state.toLowerCase().trim(),
+                      'country': 'US'
+                    }
+                  });
+                  
+                  console.log('⚠️ Lead tracked with fallback event_id:', fallbackEventId);
+                });
+              };
+              
+              if (!window.EF) {
+                var script = document.createElement('script');
+                script.src = 'https://www.pvm75hjsg.com/scripts/main.js';
+                script.onload = trackConversion;
+                document.head.appendChild(script);
+              } else {
+                trackConversion();
+              }
+            }
+          } catch (e) {
+            console.error('Error processing lead data:', e);
+          }
+        }
+      }
+      return response;
+    });
+  };
+})();
+</script>

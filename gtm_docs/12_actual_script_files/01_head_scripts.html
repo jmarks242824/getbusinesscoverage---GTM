@@ -1,0 +1,149 @@
+<!--
+================================================================================
+FILE: 01_head_scripts.html
+PLACEMENT: Inside <head> tag, as early as possible
+PAGES: ALL PAGES
+================================================================================
+-->
+
+<!-- 1. CLICK ID CAPTURE -->
+<script>
+(function(){
+  window.dataLayer = window.dataLayer || [];
+  var p = new URLSearchParams(location.search);
+  var c = function(n,v,d){document.cookie=n+'='+v+';path=/;max-age='+(d||2592000)};
+  var g = function(n){var m=document.cookie.match(new RegExp('(^| )'+n+'=([^;]+)'));return m?m[2]:''};
+  
+  var params = {
+    'affid': 'ef_affid',
+    'oid': 'ef_oid', 
+    'sub1': 'ef_sub1',
+    'sub2': 'ef_sub2',
+    'sub3': 'ef_sub3',
+    'sub4': 'ef_sub4',
+    'sub5': 'ef_sub5',
+    'uid': 'ef_uid',
+    'source_id': 'ef_source_id',
+    '_ef_transaction_id': 'ef_tid',
+    'affid2': 'ef_affid2',
+    'oid2': 'ef_oid2',
+    'gclid': 'gclid',
+    'msclkid': 'msclkid',
+    'fbclid': 'fbclid',
+    'tblci': 'tblci',
+    'ob_click_id': 'obclid'
+  };
+  
+  for (var key in params) {
+    var val = p.get(key);
+    if (val) c(params[key], val);
+  }
+  
+  if (!g('_fbc') && p.get('fbclid')) {
+    c('_fbc', 'fb.1.' + Date.now() + '.' + p.get('fbclid'), 7776000);
+  }
+  
+  if (!g('_fbp')) {
+    c('_fbp', 'fb.1.' + Date.now() + '.' + Math.random().toString(36).substr(2, 12), 7776000);
+  }
+  
+  window.clickIds = {
+    ef_tid: g('ef_tid'),
+    ef_affid: g('ef_affid'),
+    ef_oid: g('ef_oid'),
+    ef_sub1: g('ef_sub1'),
+    ef_sub2: g('ef_sub2'),
+    ef_sub3: g('ef_sub3'),
+    ef_sub4: g('ef_sub4'),
+    ef_sub5: g('ef_sub5'),
+    ef_uid: g('ef_uid'),
+    ef_source_id: g('ef_source_id'),
+    ef_affid2: g('ef_affid2'),
+    ef_oid2: g('ef_oid2'),
+    gclid: g('gclid'),
+    msclkid: g('msclkid'),
+    fbc: g('_fbc'),
+    fbp: g('_fbp'),
+    tblci: g('tblci'),
+    obclid: g('obclid')
+  };
+})();
+</script>
+
+<!-- 2. GOOGLE TAG -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=GT-5RMBWCN6"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'GT-5RMBWCN6');
+  gtag('config', 'G-1Z5EC7EX37');
+</script>
+
+<!-- 3. MICROSOFT CLARITY -->
+<!-- USE CORRECT ID: fastbusinessquote.com = rrejdlholl | getbusinesscoverage.com = uuqr6vibpo -->
+<script>
+(function(c,l,a,r,i,t,y){
+  c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
+  t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
+  y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
+})(window, document, "clarity", "script", "rrejdlholl");
+</script>
+
+<!-- 4. EVERFLOW CLICK -->
+<script type="text/javascript" src="https://www.pvm75hjsg.com/scripts/main.js"></script>
+<script>
+(function(){
+  window.dataLayer = window.dataLayer || [];
+  
+  if (!window.clickIds.ef_affid) return;
+  
+  if (window.clickIds.ef_affid2) {
+    EF.click({
+      tracking_domain: "https://www.bhmediatrack.com",
+      offer_id: window.clickIds.ef_oid2,
+      affiliate_id: window.clickIds.ef_affid2,
+      sub1: window.clickIds.ef_sub1
+    }).then(function(transaction_id) {
+      dataLayer.push({
+        'event': 'everflow_click',
+        'event_id': transaction_id
+      });
+      
+      EF.click({
+        tracking_domain: "https://www.pvm75hjsg.com",
+        offer_id: window.clickIds.ef_oid,
+        affiliate_id: window.clickIds.ef_affid,
+        sub1: window.clickIds.ef_sub1,
+        sub2: window.clickIds.ef_sub2,
+        sub3: window.clickIds.ef_sub3,
+        sub4: window.clickIds.ef_sub4,
+        sub5: transaction_id,
+        uid: window.clickIds.ef_uid,
+        source_id: window.clickIds.ef_source_id
+      });
+    });
+  } else {
+    EF.click({
+      tracking_domain: "https://www.pvm75hjsg.com",
+      offer_id: window.clickIds.ef_oid,
+      affiliate_id: window.clickIds.ef_affid,
+      sub1: window.clickIds.ef_sub1,
+      sub2: window.clickIds.ef_sub2,
+      sub3: window.clickIds.ef_sub3,
+      sub4: window.clickIds.ef_sub4,
+      sub5: window.clickIds.ef_sub5,
+      uid: window.clickIds.ef_uid,
+      source_id: window.clickIds.ef_source_id,
+      transaction_id: window.clickIds.ef_tid || ''
+    }).then(function(tid) {
+      if (tid) {
+        dataLayer.push({
+          'event': 'everflow_click',
+          'event_id': tid
+        });
+      }
+    });
+  }
+})();
+</script>
